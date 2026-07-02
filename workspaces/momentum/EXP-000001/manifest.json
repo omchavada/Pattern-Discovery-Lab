@@ -1,0 +1,10 @@
+{
+    "experiment_id": "EXP-000001",
+    "workspace": "momentum",
+    "ticker": "RELIANCE.NS",
+    "dataset_sha256": "8dc228433525125d24cd2936ce6fc88a1e648067a66a058a0e4970c11426419e",
+    "quality_score": 100.0,
+    "execution_ms": 2207.18,
+    "status": "COMPLETED",
+    "created_at": "2026-07-02T19:06:45.154140Z"
+}

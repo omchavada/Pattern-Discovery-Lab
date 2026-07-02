@@ -25,32 +25,30 @@ class ExperimentManager:
         
         logger.info("ExperimentManager initialized.")
         
-    def run_experiment(self, name: str, ticker: str, start: str, end: str, tags: Dict[str, str] = None) -> ExperimentContext:
-        """
-        Executes a complete research pipeline and logs it as a traceable experiment.
-        """
-        # 1. Register the Experiment
-        exp_id = self.registry.create_experiment(name, tags)
+    def run_experiment(self, name: str, ticker: str, start: str, end: str, workspace: str = "default", tags: Dict[str, str] = None) -> ExperimentContext:
+        """Executes a complete research pipeline."""
         
-        # 2. Initialize the Context
+        exp_id = self.registry.create_experiment(name, tags, workspace=workspace)
+        from src.experiment.state import ExperimentState
+        
         ctx = ExperimentContext(
+            workspace=workspace,
             experiment_id=exp_id,
             name=name,
             ticker=ticker,
-            source="Yahoo"
+            source="Yahoo",
+            state=ExperimentState.RUNNING
         )
         
-        logger.info(f"Starting execution for {exp_id}...")
+        logger.info(f"Starting execution for {exp_id} in {workspace}...")
         
-        # 3. Execute the Data Phase
-        # We pass the context in, and the DataEngine populates it with data and telemetry
         ctx = self.data_engine.run_pipeline(ctx, start, end)
         
-        # 4. (Future) Execute Feature Phase
-        # 5. (Future) Execute Hypothesis/Backtest Phase
-        
-        # 6. Track and Save Everything
+        # If the pipeline returned market data, we assume success for Phase 1
+        if ctx.market_data is not None:
+            ctx.state = ExperimentState.COMPLETED
+        else:
+            ctx.state = ExperimentState.FAILED
+            
         self.tracker.log_context(ctx)
-        
-        logger.info(f"Experiment {exp_id} complete and successfully tracked.")
         return ctx

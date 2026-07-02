@@ -1,0 +1,10 @@
+{
+    "experiment_id": "EXP-000001",
+    "workspace": "mean_reversion",
+    "ticker": "HDFCBANK.NS",
+    "dataset_sha256": "f61169908100b4a320b960e8890b3f82ca69b00dcf8f7218849f5a9ec4b74188",
+    "quality_score": 100.0,
+    "execution_ms": 864.92,
+    "status": "COMPLETED",
+    "created_at": "2026-07-02T19:06:46.025704Z"
+}

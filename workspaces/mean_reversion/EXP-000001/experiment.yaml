@@ -1,0 +1,6 @@
+experiment_id: EXP-000001
+name: HDFC Base
+platform_version: 0.1.0-alpha
+source: Yahoo
+ticker: HDFCBANK.NS
+workspace: mean_reversion

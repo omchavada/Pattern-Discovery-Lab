@@ -1,23 +1,22 @@
-# test_run.py
 from src.experiment.manager import ExperimentManager
+from src.experiment.catalog import DataCatalog
 
 if __name__ == "__main__":
-    print("--- Booting Pattern Discovery Lab ---")
-    
-    # Initialize the master manager
     manager = ExperimentManager()
     
-    # Launch an experiment
-    context = manager.run_experiment(
-        name="Baseline Data Integrity Run",
-        ticker="RELIANCE.NS",
-        start="2023-01-01",
-        end="2023-01-15",
-        tags={"strategy": "momentum", "env": "dev"}
-    )
+    print("--- 1. Generating Mock Experiments ---")
+    # Run a Momentum experiment
+    manager.run_experiment(name="Reliance Base", ticker="RELIANCE.NS", start="2023-01-01", end="2023-01-15", workspace="momentum")
+    # Run a Mean Reversion experiment
+    manager.run_experiment(name="HDFC Base", ticker="HDFCBANK.NS", start="2023-01-01", end="2023-01-15", workspace="mean_reversion")
+
+    print("\n--- 2. Querying the Data Catalog ---")
+    catalog = DataCatalog()
     
-    print("\n=========================================")
-    print(f" EXPERIMENT {context.experiment_id} COMPLETE ")
-    print("=========================================")
-    print(f"Check the 'experiments/{context.experiment_id}' folder in your project root.")
-    print("You will find your raw data, market data, and full audit JSON perfectly isolated.")
+    print("\nAll Experiments in the OS:")
+    df_all = catalog.get_all_experiments()
+    print(df_all[['workspace', 'experiment_id', 'ticker', 'quality_score', 'status']])
+    
+    print("\nCustom SQL Query (Show me Momentum datasets only):")
+    df_sql = catalog.query("SELECT experiment_id, ticker, dataset_sha256 FROM experiments WHERE workspace = 'momentum'")
+    print(df_sql)

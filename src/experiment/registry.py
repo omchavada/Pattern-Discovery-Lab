@@ -14,22 +14,21 @@ logger = logging.getLogger(__name__)
 
 class FileRegistry(BaseRegistry):
     """
-    Manages experiment IDs and directory structures on the local disk.
+    Manages experiment IDs and directory structures nested within Workspaces.
     """
     
-    def __init__(self, base_dir: Path = PROJECT_ROOT / "experiments"):
+    def __init__(self, base_dir: Path = PROJECT_ROOT / "workspaces"):
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"FileRegistry initialized at {self.base_dir}")
         
-    def _get_next_experiment_id(self) -> str:
-        """Scans the directory and increments the highest EXP-XXXX ID."""
-        existing_dirs = glob.glob(str(self.base_dir / "EXP-*"))
+    def _get_next_experiment_id(self, workspace_path: Path) -> str:
+        """Scans the specific workspace directory and increments the highest EXP-XXXX ID."""
+        existing_dirs = glob.glob(str(workspace_path / "EXP-*"))
         
         if not existing_dirs:
             return "EXP-000001"
             
-        # Extract the integer part of the folder names and find the max
         highest_num = 0
         for d in existing_dirs:
             folder_name = os.path.basename(d)
@@ -42,21 +41,26 @@ class FileRegistry(BaseRegistry):
         next_num = highest_num + 1
         return f"EXP-{next_num:06d}"
 
-    def create_experiment(self, name: str, tags: Dict[str, str] = None) -> str:
+    def create_experiment(self, name: str, tags: Dict[str, str] = None, workspace: str = "default") -> str:
         """
-        Generates a new Experiment ID and initializes its isolated folder.
+        Generates a new Experiment ID inside the specified workspace.
         """
-        exp_id = self._get_next_experiment_id()
-        exp_dir = self.base_dir / exp_id
+        workspace_path = self.base_dir / workspace
+        workspace_path.mkdir(parents=True, exist_ok=True)
         
-        # Create the master experiment directory
+        exp_id = self._get_next_experiment_id(workspace_path)
+        exp_dir = workspace_path / exp_id
+        
         exp_dir.mkdir(parents=True, exist_ok=False)
         
-        logger.info(f"Created new experiment environment: {exp_id} ({name})")
+        logger.info(f"Created environment: {workspace}/{exp_id} ({name})")
         return exp_id
-
+    
     def list_experiments(self) -> List[Dict[str, Any]]:
         """
-        (Placeholder for future sprint) Will return a parsed list of all past experiments.
+        Returns a list of experiments.
+        Note: For advanced querying, use the DuckDB DataCatalog instead.
         """
-        pass
+        # We return an empty list here to satisfy the interface.
+        # The true indexing power is now handled by src/experiment/catalog.py
+        return []

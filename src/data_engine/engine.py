@@ -5,52 +5,86 @@ import logging
 from typing import Optional
 
 from src.data_engine.types import Ticker, DateStr, MarketData
-from src.data_engine.config import RAW_DATA_PATH
+from src.data_engine.config import RAW_DATA_PATH, VALIDATED_DATA_PATH
+from src.data_engine.context import PipelineContext
+
+# Pipeline Modules
 from src.data_engine.downloaders.yahoo import YahooDownloader
+from src.data_engine.standardizers.yahoo import YahooStandardizer
 from src.data_engine.storage.parquet import ParquetStorage
 
-# Setup module-level logger
+from src.data_engine.validators.pipeline import ValidationPipeline
+from src.data_engine.validators.price import PriceValidator
+from src.data_engine.validators.missing_data import MissingDataValidator
+from src.data_engine.validators.duplicate import DuplicateValidator
+from src.data_engine.validators.date import DateOrderValidator
+from src.data_engine.validators.volume import VolumeValidator
+
 logger = logging.getLogger(__name__)
 
 class DataEngine:
     """
-    Orchestrates the downloading, validation, storage, and retrieval 
-    of market data and metadata.
+    Orchestrates the immutable ETL pipeline for market data.
     """
     
     def __init__(self):
-        # Initialize internal worker modules
+        # 1. External IO
         self.downloader = YahooDownloader()
-        self.storage = ParquetStorage(RAW_DATA_PATH)
-        # self.validator = MarketValidator()  # We will wire this in Milestone 2.5
+        self.raw_storage = ParquetStorage(RAW_DATA_PATH)
+        self.validated_storage = ParquetStorage(VALIDATED_DATA_PATH)
         
-        logger.info("DataEngine Facade initialized.")
+        # 2. Transformations
+        self.standardizer = YahooStandardizer()
         
-    def download(self, ticker: Ticker, start: DateStr, end: DateStr) -> bool:
+        # 3. Validations
+        self.validator_pipeline = ValidationPipeline([
+            PriceValidator(),
+            MissingDataValidator(),
+            DuplicateValidator(),
+            DateOrderValidator(),
+            VolumeValidator()
+        ])
+        
+        logger.info("DataEngine initialized with PipelineContext ETL.")
+        
+    def run_pipeline(self, ticker: Ticker, start: DateStr, end: DateStr) -> PipelineContext:
         """
-        Downloads data via the active downloader and saves it to storage.
+        Executes the full data pipeline and returns the final context state.
         """
-        logger.info(f"DataEngine: Starting download process for {ticker}")
+        # Initialize the Context
+        ctx = PipelineContext(ticker=ticker, source="Yahoo")
+        logger.info(f"--- Starting Pipeline for {ctx.ticker} ---")
+        
         try:
-            # 1. Fetch
-            df = self.downloader.fetch_historical(ticker, start, end)
+            # 1. Download & Save Raw
+            ctx.raw_data = self.downloader.fetch_historical(ctx.ticker, start, end)
+            self.raw_storage.save(ctx.raw_data, f"{ctx.ticker}_raw")
             
-            # 2. Validate (Placeholder for next sprint)
-            # self.validator.validate(df)
+            # 2. Standardize
+            ctx.standardized_data = self.standardizer.standardize(ctx.raw_data, ctx.ticker)
             
-            # 3. Save
-            success = self.storage.save(df, ticker)
+            # 3. Validate
+            _, ctx.validation_report = self.validator_pipeline.run(ctx.standardized_data, ctx.ticker)
             
-            logger.info(f"DataEngine: Successfully downloaded and stored {ticker}")
-            return success
+            # 4. Store Validated (If successful)
+            if ctx.validation_report.passed:
+                self.validated_storage.save(ctx.standardized_data, ctx.ticker)
+                logger.info(f"Pipeline SUCCESS. Score: {ctx.validation_report.quality_score}/100. Time: {ctx.execution_time_ms}ms")
+            else:
+                logger.warning(f"Pipeline HALTED. Critical validation failures.")
+                
+            return ctx
             
         except Exception as e:
-            logger.error(f"DataEngine: Failed to process {ticker} - {str(e)}")
-            return False
+            logger.error(f"Pipeline FAILED for {ctx.ticker} - {str(e)}")
+            ctx.metadata['error'] = str(e)
+            return ctx
 
-    def load(self, ticker: Ticker) -> MarketData:
-        """
-        Loads processed data from storage into memory.
-        """
-        logger.info(f"DataEngine: Loading data for {ticker}")
-        return self.storage.load(ticker)
+    def load(self, ticker: Ticker, tier: str = "validated") -> MarketData:
+        """Loads data from the specified storage tier."""
+        if tier == "raw":
+            return self.raw_storage.load(f"{ticker}_raw")
+        elif tier == "validated":
+            return self.validated_storage.load(ticker)
+        else:
+            raise ValueError(f"Unknown storage tier: {tier}")

@@ -8,8 +8,10 @@ from pathlib import Path
 PROJECT_ROOT = Path(os.path.abspath(__file__)).parent.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 
+# The Immutable Data Hierarchy
 RAW_DATA_PATH = DATA_DIR / "raw"
-PROCESSED_DATA_PATH = DATA_DIR / "processed"
+VALIDATED_DATA_PATH = DATA_DIR / "validated"
+CLEAN_DATA_PATH = DATA_DIR / "clean"
 DB_PATH = DATA_DIR / "database" / "market_data.db"
 
 # Engine Constants

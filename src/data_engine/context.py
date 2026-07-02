@@ -23,7 +23,7 @@ class PipelineContext:
     
     # Data States (Immutable at each stage)
     raw_data: Optional[pd.DataFrame] = None
-    standardized_data: Optional[pd.DataFrame] = None
+    market_data: Optional[pd.DataFrame] = None
     cleaned_data: Optional[pd.DataFrame] = None
     
     # Reports

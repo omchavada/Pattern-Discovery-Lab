@@ -1,0 +1,17 @@
+{
+    "name": "Baseline Data Integrity Run",
+    "ticker": "RELIANCE.NS",
+    "source": "Yahoo",
+    "audit": {
+        "python_version": "3.13.2",
+        "system_os": "Darwin",
+        "dataset_sha256": "8b540f305d5a8d7675b1a0deda076288c86c88a5571aeab7ab3946f759576005",
+        "rows_processed": 10,
+        "total_execution_ms": 1140.7,
+        "step_times_ms": {
+            "Download": 1136.86,
+            "Standardize": 1.42,
+            "Validate": 2.42
+        }
+    }
+}

@@ -1,23 +1,19 @@
 # test_run.py
-from src.data_engine.downloaders.yahoo import YahooDownloader
-from src.data_engine.storage.parquet import ParquetStorage
-from src.data_engine.config import RAW_DATA_PATH
+from src.data_engine import DataEngine
 
 if __name__ == "__main__":
     ticker = "RELIANCE.NS"
     
-    # 1. Download the data
-    print("--- 1. Fetching Data ---")
-    downloader = YahooDownloader()
-    df = downloader.fetch_historical(ticker, "2023-01-01", "2023-01-10")
-    print(f"Downloaded {len(df)} rows.")
+    # Instantiate the unified engine
+    engine = DataEngine()
     
-    # 2. Save to Parquet
-    print("\n--- 2. Saving to Parquet ---")
-    storage = ParquetStorage(RAW_DATA_PATH)
-    storage.save(df, ticker)
+    # 1. The one-line download command
+    print("\n--- Testing Engine Download ---")
+    engine.download(ticker, start="2023-01-01", end="2023-01-15")
     
-    # 3. Load from Parquet to verify
-    print("\n--- 3. Loading from Disk ---")
-    loaded_df = storage.load(ticker)
-    print(loaded_df.head())
+    # 2. The one-line load command
+    print("\n--- Testing Engine Load ---")
+    df = engine.load(ticker)
+    
+    print("\nFinal Output:")
+    print(df.head())

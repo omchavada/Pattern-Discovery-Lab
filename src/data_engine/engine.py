@@ -49,42 +49,44 @@ class DataEngine:
         
     def run_pipeline(self, ticker: Ticker, start: DateStr, end: DateStr) -> PipelineContext:
         """
-        Executes the full data pipeline and returns the final context state.
+        Executes the full data pipeline with strict audit profiling.
         """
-        # Initialize the Context
         ctx = PipelineContext(ticker=ticker, source="Yahoo")
-        logger.info(f"--- Starting Pipeline for {ctx.ticker} ---")
+        from src.data_engine.audit import StepProfiler # Ensure this is imported at top
+        
+        logger.info(f"--- Starting Profiled Pipeline for {ctx.ticker} ---")
         
         try:
             # 1. Download & Save Raw
-            ctx.raw_data = self.downloader.fetch_historical(ctx.ticker, start, end)
-            self.raw_storage.save(ctx.raw_data, f"{ctx.ticker}_raw")
+            with StepProfiler(ctx.audit, "Download"):
+                ctx.raw_data = self.downloader.fetch_historical(ctx.ticker, start, end)
+                
+            with StepProfiler(ctx.audit, "Store_Raw"):
+                self.raw_storage.save(ctx.raw_data, f"{ctx.ticker}_raw")
             
-            # 2. Standardize
-            ctx.standardized_data = self.standardizer.standardize(ctx.raw_data, ctx.ticker)
+            # 2. Standardize (Now creating market_data)
+            with StepProfiler(ctx.audit, "Standardize"):
+                ctx.market_data = self.standardizer.standardize(ctx.raw_data, ctx.ticker)
             
             # 3. Validate
-            _, ctx.validation_report = self.validator_pipeline.run(ctx.standardized_data, ctx.ticker)
+            with StepProfiler(ctx.audit, "Validate"):
+                _, ctx.validation_report = self.validator_pipeline.run(ctx.market_data, ctx.ticker)
             
-            # 4. Store Validated (If successful)
-            if ctx.validation_report.passed:
-                self.validated_storage.save(ctx.standardized_data, ctx.ticker)
-                logger.info(f"Pipeline SUCCESS. Score: {ctx.validation_report.quality_score}/100. Time: {ctx.execution_time_ms}ms")
-            else:
-                logger.warning(f"Pipeline HALTED. Critical validation failures.")
-                
+            # 4. Store Validated & Finalize Audit
+            with StepProfiler(ctx.audit, "Store_Validated"):
+                if ctx.validation_report.passed:
+                    self.validated_storage.save(ctx.market_data, ctx.ticker)
+                    
+            # Lock in the cryptographic lineage
+            ctx.audit.record_lineage(ctx.market_data)
+            
+            logger.info(
+                f"Pipeline SUCCESS. Score: {ctx.validation_report.quality_score}/100. "
+                f"Total Time: {ctx.audit.total_execution_ms}ms"
+            )
             return ctx
             
         except Exception as e:
             logger.error(f"Pipeline FAILED for {ctx.ticker} - {str(e)}")
             ctx.metadata['error'] = str(e)
             return ctx
-
-    def load(self, ticker: Ticker, tier: str = "validated") -> MarketData:
-        """Loads data from the specified storage tier."""
-        if tier == "raw":
-            return self.raw_storage.load(f"{ticker}_raw")
-        elif tier == "validated":
-            return self.validated_storage.load(ticker)
-        else:
-            raise ValueError(f"Unknown storage tier: {tier}")

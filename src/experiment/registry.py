@@ -4,6 +4,7 @@ Local file-system implementation of the Experiment Registry.
 import os
 import glob
 import logging
+import threading
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -15,11 +16,16 @@ logger = logging.getLogger(__name__)
 class FileRegistry(BaseRegistry):
     """
     Manages experiment IDs and directory structures nested within Workspaces.
+    Thread-safe implementation.
     """
     
     def __init__(self, base_dir: Path = PROJECT_ROOT / "workspaces"):
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
+        
+        # ADDED: Thread lock to prevent race conditions during concurrent batch runs
+        self._lock = threading.Lock()
+        
         logger.info(f"FileRegistry initialized at {self.base_dir}")
         
     def _get_next_experiment_id(self, workspace_path: Path) -> str:
@@ -43,24 +49,24 @@ class FileRegistry(BaseRegistry):
 
     def create_experiment(self, name: str, tags: Dict[str, str] = None, workspace: str = "default") -> str:
         """
-        Generates a new Experiment ID inside the specified workspace.
+        Generates a new Experiment ID safely across multiple threads.
         """
-        workspace_path = self.base_dir / workspace
-        workspace_path.mkdir(parents=True, exist_ok=True)
-        
-        exp_id = self._get_next_experiment_id(workspace_path)
-        exp_dir = workspace_path / exp_id
-        
-        exp_dir.mkdir(parents=True, exist_ok=False)
-        
-        logger.info(f"Created environment: {workspace}/{exp_id} ({name})")
-        return exp_id
-    
+        # ADDED: Acquire the lock before checking the directory and creating the folder
+        with self._lock:
+            workspace_path = self.base_dir / workspace
+            workspace_path.mkdir(parents=True, exist_ok=True)
+            
+            exp_id = self._get_next_experiment_id(workspace_path)
+            exp_dir = workspace_path / exp_id
+            
+            exp_dir.mkdir(parents=True, exist_ok=False)
+            
+            logger.info(f"Created environment: {workspace}/{exp_id} ({name})")
+            return exp_id
+
     def list_experiments(self) -> List[Dict[str, Any]]:
         """
         Returns a list of experiments.
         Note: For advanced querying, use the DuckDB DataCatalog instead.
         """
-        # We return an empty list here to satisfy the interface.
-        # The true indexing power is now handled by src/experiment/catalog.py
         return []

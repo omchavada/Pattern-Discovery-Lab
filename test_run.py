@@ -1,22 +1,34 @@
-from src.experiment.manager import ExperimentManager
+import time
+from src.experiment.batch import BatchDownloader
 from src.experiment.catalog import DataCatalog
 
 if __name__ == "__main__":
-    manager = ExperimentManager()
+    print("--- Booting High-Throughput Research OS ---")
     
-    print("--- 1. Generating Mock Experiments ---")
-    # Run a Momentum experiment
-    manager.run_experiment(name="Reliance Base", ticker="RELIANCE.NS", start="2023-01-01", end="2023-01-15", workspace="momentum")
-    # Run a Mean Reversion experiment
-    manager.run_experiment(name="HDFC Base", ticker="HDFCBANK.NS", start="2023-01-01", end="2023-01-15", workspace="mean_reversion")
-
-    print("\n--- 2. Querying the Data Catalog ---")
+    # Define a basket of tickers to fetch concurrently
+    ticker_basket = ["TCS.NS", "INFY.NS", "WIT.NS", "RELIANCE.NS", "HDFCBANK.NS"]
+    
+    start_time = time.time()
+    
+    # Initialize the batch downloader with 5 parallel worker threads
+    batch_engine = BatchDownloader(max_workers=5)
+    
+    print(f"\n--- 1. Launching Concurrent Downloads for {len(ticker_basket)} Stocks ---")
+    contexts = batch_engine.execute_batch(
+        tickers=ticker_basket,
+        start="2023-01-01",
+        end="2023-01-15",
+        workspace="large_cap_momentum"
+    )
+    
+    elapsed_time = time.time() - start_time
+    print(f"\nBatch processing completed in {elapsed_time:.2f} seconds.")
+    
+    print("\n--- 2. Querying Data Catalog for the New Workspace ---")
     catalog = DataCatalog()
-    
-    print("\nAll Experiments in the OS:")
-    df_all = catalog.get_all_experiments()
-    print(df_all[['workspace', 'experiment_id', 'ticker', 'quality_score', 'status']])
-    
-    print("\nCustom SQL Query (Show me Momentum datasets only):")
-    df_sql = catalog.query("SELECT experiment_id, ticker, dataset_sha256 FROM experiments WHERE workspace = 'momentum'")
-    print(df_sql)
+    df_workspace = catalog.query("""
+        SELECT experiment_id, ticker, quality_score, execution_ms, status 
+        FROM experiments 
+        WHERE workspace = 'large_cap_momentum'
+    """)
+    print(df_workspace)

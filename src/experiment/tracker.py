@@ -71,6 +71,8 @@ class FileTracker(BaseTracker):
             "experiment_id": ctx.experiment_id,
             "workspace": ctx.workspace,
             "ticker": ctx.ticker,
+            "start_date": ctx.start_date, # ADDED
+            "end_date": ctx.end_date,     # ADDED
             "dataset_sha256": ctx.audit.file_hash,
             "quality_score": quality_score,
             "execution_ms": ctx.audit.total_execution_ms,

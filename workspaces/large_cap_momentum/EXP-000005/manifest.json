@@ -1,0 +1,12 @@
+{
+    "experiment_id": "EXP-000005",
+    "workspace": "large_cap_momentum",
+    "ticker": "HDFCBANK.NS",
+    "start_date": "2023-01-01",
+    "end_date": "2023-01-15",
+    "dataset_sha256": "d9a3d7718555fadda8f0b5a29561ef99bcfb52bdbdd159f6fd4d5cd2d3092e9a",
+    "quality_score": 100.0,
+    "execution_ms": 1142.63,
+    "status": "COMPLETED",
+    "created_at": "2026-07-02T19:31:50.713310Z"
+}

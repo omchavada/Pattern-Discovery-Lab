@@ -1,6 +1,6 @@
 experiment_id: EXP-000001
-name: Reliance Base
+name: Batch Run TCS.NS
 platform_version: 0.1.0-alpha
 source: Yahoo
-ticker: RELIANCE.NS
-workspace: momentum
+ticker: TCS.NS
+workspace: cache_test_workspace

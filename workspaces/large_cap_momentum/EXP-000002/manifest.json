@@ -1,0 +1,12 @@
+{
+    "experiment_id": "EXP-000002",
+    "workspace": "large_cap_momentum",
+    "ticker": "INFY.NS",
+    "start_date": "2023-01-01",
+    "end_date": "2023-01-15",
+    "dataset_sha256": "801a3cdf4cfe6e816ced4ece582346e4e9220ae18683ee59e75f36360f3cd4d5",
+    "quality_score": 100.0,
+    "execution_ms": 1154.92,
+    "status": "COMPLETED",
+    "created_at": "2026-07-02T19:31:50.713219Z"
+}

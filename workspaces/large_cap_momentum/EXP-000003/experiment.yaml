@@ -1,0 +1,6 @@
+experiment_id: EXP-000003
+name: Batch Run WIT.NS
+platform_version: 0.1.0-alpha
+source: Yahoo
+ticker: WIT.NS
+workspace: large_cap_momentum

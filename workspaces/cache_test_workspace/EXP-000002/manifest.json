@@ -1,0 +1,12 @@
+{
+    "experiment_id": "EXP-000002",
+    "workspace": "cache_test_workspace",
+    "ticker": "RELIANCE.NS",
+    "start_date": "2023-01-01",
+    "end_date": "2023-01-15",
+    "dataset_sha256": "2fd79d6dbe42aa3aef80628c21925d39fa9bddfe4fb1c9776c799f72296fe3a3",
+    "quality_score": 100.0,
+    "execution_ms": 1803.29,
+    "status": "COMPLETED",
+    "created_at": "2026-07-02T19:29:22.776078Z"
+}

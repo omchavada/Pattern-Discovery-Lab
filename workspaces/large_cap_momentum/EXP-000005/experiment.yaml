@@ -1,0 +1,6 @@
+experiment_id: EXP-000005
+name: Batch Run HDFCBANK.NS
+platform_version: 0.1.0-alpha
+source: Yahoo
+ticker: HDFCBANK.NS
+workspace: large_cap_momentum

@@ -1,0 +1,12 @@
+{
+    "experiment_id": "EXP-000004",
+    "workspace": "large_cap_momentum",
+    "ticker": "RELIANCE.NS",
+    "start_date": "2023-01-01",
+    "end_date": "2023-01-15",
+    "dataset_sha256": "8b540f305d5a8d7675b1a0deda076288c86c88a5571aeab7ab3946f759576005",
+    "quality_score": 100.0,
+    "execution_ms": 1155.73,
+    "status": "COMPLETED",
+    "created_at": "2026-07-02T19:31:50.713241Z"
+}

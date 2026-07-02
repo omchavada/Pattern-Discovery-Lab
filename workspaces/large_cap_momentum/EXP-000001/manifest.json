@@ -1,0 +1,12 @@
+{
+    "experiment_id": "EXP-000001",
+    "workspace": "large_cap_momentum",
+    "ticker": "TCS.NS",
+    "start_date": "2023-01-01",
+    "end_date": "2023-01-15",
+    "dataset_sha256": "c500c318e736e0d7be93040ebd48d11e176d45913c61cb224242a40071dc2896",
+    "quality_score": 100.0,
+    "execution_ms": 1144.83,
+    "status": "COMPLETED",
+    "created_at": "2026-07-02T19:31:50.713006Z"
+}

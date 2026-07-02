@@ -19,6 +19,8 @@ class ExperimentContext:
     name: str
     ticker: str
     source: str
+    start_date: str = ""  # ADDED
+    end_date: str = ""    # ADDED
     
     # State tracking
     state: ExperimentState = ExperimentState.CREATED
@@ -27,4 +29,7 @@ class ExperimentContext:
     audit: AuditRecord = field(default_factory=AuditRecord)
     metadata: Dict[str, Any] = field(default_factory=dict)
     
-    # ... (Keep the rest of the data/validation fields exactly the same)
+    # 1. Data Phase
+    raw_data: Optional[pd.DataFrame] = None
+    market_data: Optional[pd.DataFrame] = None
+    validation_report: Optional[ValidationReport] = None

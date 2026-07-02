@@ -1,0 +1,6 @@
+experiment_id: EXP-000004
+name: Batch Run RELIANCE.NS
+platform_version: 0.1.0-alpha
+source: Yahoo
+ticker: RELIANCE.NS
+workspace: large_cap_momentum

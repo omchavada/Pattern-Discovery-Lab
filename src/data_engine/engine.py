@@ -13,7 +13,9 @@ from src.data_engine.validators.missing_data import MissingDataValidator
 from src.data_engine.validators.pipeline import ValidationPipeline
 from src.data_engine.validators.price import PriceValidator
 from src.data_engine.validators.volume import VolumeValidator
-from src.experiment.context import ExperimentContext
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.experiment.context import ExperimentContext
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,7 @@ class DataEngine:
 
         logger.info("DataEngine initialized (Pure Processing Mode).")
 
-    def run_pipeline(self, ctx: ExperimentContext, start: str, end: str) -> ExperimentContext:
+    def run_pipeline(self, ctx: "ExperimentContext", start: str, end: str) -> "ExperimentContext":
         """
         Executes the ETL pipeline and populates the provided ExperimentContext.
         """

@@ -1,0 +1,14 @@
+# configs/development.yaml
+environment: "development"
+
+paths:
+  data_root: "data"
+  workspace_root: "workspaces"
+  database_name: "market_data.db"
+
+engine:
+  max_retries: 3
+  timeout_seconds: 10
+  
+batch:
+  max_workers: 5

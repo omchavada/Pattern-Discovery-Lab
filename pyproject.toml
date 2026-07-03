@@ -1,24 +1,23 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+[tool.ruff]
+line-length = 100
+target-version = "py313"
 
-[project]
-name = "pattern-discovery-lab"
-version = "0.1.0"
-description = "AI-powered factor research and backtesting system for equity markets."
-authors = [{ name = "Om Chavada" }]
-requires-python = ">=3.9"
-dependencies = [
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "yfinance",
-    "pyarrow"
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B"    # flake8-bugbear
 ]
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q"
-testpaths = [
-    "tests",
-]
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true

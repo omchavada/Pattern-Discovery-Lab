@@ -1,22 +1,25 @@
 """
 Parquet implementation for local file-based storage.
 """
+
 import logging
 from pathlib import Path
+
 import pandas as pd
 
-from src.data_engine.types import Ticker, MarketData
-from src.data_engine.storage.base import BaseStorage
 from src.data_engine.exceptions import StorageError
+from src.data_engine.storage.base import BaseStorage
+from src.data_engine.types import MarketData, Ticker
 
 # Setup module-level logger
 logger = logging.getLogger(__name__)
+
 
 class ParquetStorage(BaseStorage):
     """
     Handles reading and writing compressed .parquet files to the local disk.
     """
-    
+
     def __init__(self, storage_path: Path | str):
         """
         Initializes the storage manager and ensures the target directory exists.
@@ -37,7 +40,7 @@ class ParquetStorage(BaseStorage):
         try:
             file_path = self._get_file_path(ticker)
             # PyArrow engine is standard for quant systems
-            data.to_parquet(file_path, engine='pyarrow', index=False)
+            data.to_parquet(file_path, engine="pyarrow", index=False)
             logger.info(f"Successfully saved {len(data)} rows for {ticker} to {file_path}")
             return True
         except Exception as e:
@@ -49,12 +52,12 @@ class ParquetStorage(BaseStorage):
         Reads the DataFrame from {storage_path}/{ticker}.parquet.
         """
         file_path = self._get_file_path(ticker)
-        
+
         if not file_path.exists():
             raise StorageError(f"No data found for {ticker} at {file_path}")
-            
+
         try:
-            df = pd.read_parquet(file_path, engine='pyarrow')
+            df = pd.read_parquet(file_path, engine="pyarrow")
             logger.info(f"Successfully loaded {len(df)} rows for {ticker} from {file_path}")
             return df
         except Exception as e:

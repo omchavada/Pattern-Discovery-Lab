@@ -1,14 +1,17 @@
 """
 Abstract Base Class for data storage mechanisms.
 """
+
 import abc
-from src.data_engine.types import Ticker, MarketData
+
+from src.data_engine.types import MarketData, Ticker
+
 
 class BaseStorage(abc.ABC):
     """
     Standardizes how the engine saves and loads processed market data.
     """
-    
+
     @abc.abstractmethod
     def save(self, data: MarketData, ticker: Ticker) -> bool:
         """

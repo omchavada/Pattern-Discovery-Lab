@@ -1,0 +1,12 @@
+{
+    "experiment_id": "EXP-000001",
+    "workspace": "alpha_core_test",
+    "ticker": "HDFCBANK.NS",
+    "start_date": "2023-01-01",
+    "end_date": "2023-01-05",
+    "dataset_sha256": "43cdd7c29158789a20da79643820c55fbf0b44b4c725d254f06cb3dafe79b214",
+    "quality_score": 100.0,
+    "execution_ms": 1252.31,
+    "status": "COMPLETED",
+    "created_at": "2026-07-03T03:58:57.755050Z"
+}
